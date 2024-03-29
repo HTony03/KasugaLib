@@ -6,6 +6,9 @@ import kasuga.lib.core.annos.Util;
  * A simple data struct that contains two elements.
  * @param <K> Type of first data.
  * @param <V> Type of second data.
+ * 一个简易的数据结构，包含两个元素
+ * @param <K> 第一个数据的类型
+ * @param <V> 第二个数据的类型
  */
 @Util
 public class Pair<K, V> {

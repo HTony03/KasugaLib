@@ -18,6 +18,10 @@ public class EntityAttributeEvent {
      * An entity which belongs to the LivingEntity class should have "MAX_HEALTH" attribute.
      * Or your game would crash while dealing with your entity's health.
      * @param event the given forge event.
+     * 这是一个处理实体属性——类似HEALTH，血量——的事件
+     * 一个属于LivingEntity类的实体应当有“MAX_HEALTH”属性
+     * 不然你的游戏将在处理实体血量的时候崩溃
+     * @param event forge提供的event
      */
     @SubscribeEvent
     @Inner
