@@ -20,7 +20,7 @@ public abstract class C2SPacket extends Packet {
      * This function is the deserializer of your packet.
      * See {@link Packet} for more constructor info.
      * @param buf data bytes you got from the network.
-     * 这个功能是你数据包的反序列化器
+     * 这个函数是你数据包的反序列化器
      * 见 {@link Packet} 以获得更多有关构造器的信息
      * @param buf 从网络获取到的字节数据
      */

@@ -35,7 +35,7 @@ public abstract class S2CPacket extends Packet {
      * The handler of your packet, the packet would be handled here.
      * @param minecraft Your minecraft client.
      * 你的数据包的处理器，数据包将在这里被处理
-     * @param minecraft 你的mincraft客户端
+     * @param minecraft 你的minecraft客户端
      */
     public abstract void handle(Minecraft minecraft);
 

@@ -21,7 +21,7 @@ public class EntityAttributeEvent {
      * 这是一个处理实体属性——类似HEALTH，血量——的事件
      * 一个属于LivingEntity类的实体应当有“MAX_HEALTH”属性
      * 不然你的游戏将在处理实体血量的时候崩溃
-     * @param event forge提供的event
+     * @param event 给定的forge event
      */
     @SubscribeEvent
     @Inner
