@@ -5,7 +5,7 @@ import net.minecraftforge.fml.loading.FMLLoader;
 
 /**
  * This class is a utility for environment detecting.
- * 这是一个用于环境检测的class
+ * 这是一个用于运行环境检测的工具类
  */
 @Util
 public class Envs {
