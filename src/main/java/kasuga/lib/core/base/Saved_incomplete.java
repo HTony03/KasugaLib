@@ -19,6 +19,13 @@ import java.util.function.Supplier;
  * So you must prepare your SavedData class with valid serializer and deserializer method.
  * For more info, see {@link SavedData}
  * @param <T> the SavedData content Type
+ * 这个类是用于SavedData的。SavedData是在游戏暂停，退出，加载时会被加载/保存的一类数据。
+ * 你的文件的路径将是：
+ * ".minecraft/saves/save_name/data/resourceKey.dat"
+ * 所有数据应当被转化为nbt来存储
+ * 所以你应当在使用SavedData类前准备好有效的序列化器和反序列化器
+ * 更多信息请见{@link SavedData}
+ * @param <T> SavedData内容类型
  */
 public class Saved<T extends SavedData> {
 
