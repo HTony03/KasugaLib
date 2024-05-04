@@ -1,6 +1,7 @@
 package kasuga.lib.registrations.registry;
 
 import kasuga.lib.KasugaLib;
+import kasuga.lib.core.KasugaLibStacks;
 import kasuga.lib.core.annos.Beta;
 import kasuga.lib.core.annos.Inner;
 import kasuga.lib.core.annos.Mandatory;
@@ -8,9 +9,7 @@ import kasuga.lib.core.annos.Util;
 import kasuga.lib.core.client.ModelMappings;
 import kasuga.lib.core.client.render.model.CustomRenderedItemModel;
 import kasuga.lib.core.base.SimpleCreativeTab;
-import kasuga.lib.registrations.common.BlockEntityReg;
-import kasuga.lib.registrations.common.EntityReg;
-import kasuga.lib.registrations.common.MenuReg;
+import kasuga.lib.registrations.common.*;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
@@ -39,6 +38,7 @@ import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.function.Supplier;
 
 /**
  * SimpleRegistry is the core registry of KasugaLib provide Registration.
@@ -66,6 +66,7 @@ public class SimpleRegistry {
     private final ModelRegistry MODELS;
     private final HashMap<String, BlockEntityReg<?>> CACHE_OF_BLOCK_ENTITIES;
     private final HashMap<String, MenuReg<?, ?, ?>> CACHE_OF_MENUS;
+    private final HashMap<Supplier<Block>, BlockReg.BlockRendererBuilder<Block>> CACHE_OF_BLOCK_RENDERER;
     private final HashSet<EntityReg<?>> CACHE_OF_ENTITIES;
     private final HashSet<String> CUSTOM_RENDERED_ITEMS;
     private final HashSet<EntityReg<? extends LivingEntity>> CACHE_OF_LIVING_ENTITIES;
@@ -103,6 +104,7 @@ public class SimpleRegistry {
         CACHE_OF_LIVING_ENTITIES = new HashSet<>();
         modelMappings = new ModelMappings(namespace);
         CACHE_OF_ENTITIES = new HashSet<>();
+        CACHE_OF_BLOCK_RENDERER = new HashMap<>();
         TABS = new HashMap<>();
     }
 
@@ -233,9 +235,14 @@ public class SimpleRegistry {
         ITEMS.register(eventBus);
         FLUID_TYPE.register(eventBus);
         FLUID.register(eventBus);
-        for(String key : CACHE_OF_BLOCK_ENTITIES.keySet()) {CACHE_OF_BLOCK_ENTITIES.get(key).submit(this);}
+        for(String key : CACHE_OF_BLOCK_ENTITIES.keySet()) {
+            try {
+                BlockEntityReg<?> reg = CACHE_OF_BLOCK_ENTITIES.get(key);
+                reg.getType();
+                reg.submit(this);
+            } catch (Exception ignore) {}
+        }
         for(String key : CACHE_OF_MENUS.keySet()) {CACHE_OF_MENUS.get(key).submit(this);}
-        CACHE_OF_MENUS.clear();
         BLOCK_ENTITIES.register(eventBus);
         MENUS.register(eventBus);
         ENTITIES.register(eventBus);
@@ -318,6 +325,10 @@ public class SimpleRegistry {
         return CACHE_OF_MENUS.getOrDefault(registrationKey, null);
     }
 
+    public HashMap<String, MenuReg<?, ?, ?>> getCahcedMenus() {
+        return CACHE_OF_MENUS;
+    }
+
     /**
      * Don't use.
      * @param reg the reg to cache in.
@@ -345,17 +356,30 @@ public class SimpleRegistry {
         CACHE_OF_ENTITIES.add(entityReg);
     }
 
+
+
+
+    @Inner
+    public void cacheBlockRendererIn(BlockReg reg, BlockReg.BlockRendererBuilder rendererBuilder) {
+        this.CACHE_OF_BLOCK_RENDERER.put(reg::getBlock, rendererBuilder);
+    }
+
+    @Inner
+    public void cacheBlockRendererIn(FluidBlockReg reg, BlockReg.BlockRendererBuilder rendererBuilder) {
+        this.CACHE_OF_BLOCK_RENDERER.put(reg::getBlock, rendererBuilder);
+    }
+
+    public void onBlockRendererReg() {
+        KasugaLibStacks stacks = KasugaLib.STACKS;
+        CACHE_OF_BLOCK_RENDERER.forEach((a, b) -> stacks.cacheBlockRendererIn(a.get(), b.build(a).get()));
+    }
     /**
      * Don't use. This would be call via {@link kasuga.lib.core.events.client.ModelRegistryEvent}
      */
     @Inner
     public void onEntityRendererReg() {
-        for(EntityReg<?> entityReg : CACHE_OF_ENTITIES) {
-            entityReg.registerRenderer();
-        }
-        for(String key: CACHE_OF_BLOCK_ENTITIES.keySet()) {
-            CACHE_OF_BLOCK_ENTITIES.get(key).registerRenderer(this);
-        }
+        CACHE_OF_ENTITIES.forEach(EntityReg::registerRenderer);
+        CACHE_OF_BLOCK_ENTITIES.forEach((a, b) -> b.registerRenderer(this));
         CACHE_OF_BLOCK_ENTITIES.clear();
         CACHE_OF_ENTITIES.clear();
     }

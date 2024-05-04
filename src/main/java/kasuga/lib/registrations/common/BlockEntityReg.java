@@ -46,7 +46,7 @@ public class BlockEntityReg<T extends BlockEntity> extends Reg {
      * @return self.
      */
     @Mandatory
-    public BlockEntityReg<T> blockEntityType(BlockEntityType.BlockEntitySupplier<? extends BlockEntity> blockEntity) {
+    public BlockEntityReg<T> blockEntityType(BlockEntityType.BlockEntitySupplier blockEntity) {
         this.builder =(BlockEntityType.BlockEntitySupplier<T>) blockEntity;
         return this;
     }
@@ -105,8 +105,12 @@ public class BlockEntityReg<T extends BlockEntity> extends Reg {
      */
     @Mandatory
     public BlockEntityReg<T> submit(SimpleRegistry registry) {
+        if (builder == null) {
+            crashOnNotPresent(BlockEntityType.BlockEntitySupplier.class, "blockEntityType", "submit");
+        }
         registryObject = registry.blockEntity()
                 .register(registrationKey, () -> BlockEntityType.Builder.of(builder, getBlockList()).build(dataType));
+        registry.cacheBeIn(this);
         return this;
     }
 

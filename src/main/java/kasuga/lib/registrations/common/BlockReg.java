@@ -4,8 +4,12 @@ import kasuga.lib.core.annos.Beta;
 import kasuga.lib.core.annos.Inner;
 import kasuga.lib.core.annos.Mandatory;
 import kasuga.lib.core.annos.Optional;
+import kasuga.lib.core.base.CustomBlockRenderer;
 import kasuga.lib.registrations.Reg;
+import kasuga.lib.registrations.exception.RegistryElementNotPresentException;
 import kasuga.lib.registrations.registry.SimpleRegistry;
+import net.minecraft.CrashReport;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.MenuAccess;
@@ -26,6 +30,7 @@ import net.minecraftforge.registries.RegistryObject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 
 /**
@@ -47,6 +52,8 @@ public class BlockReg<T extends Block> extends Reg {
     private PropertyIdentifier identifier;
     private RegistryObject<T> registryObject;
     private final List<TagKey<?>> tags;
+    boolean registerItem = false, registerBe = false, registerMenu = false;
+    private BlockRendererBuilder<T> rendererBuilder = null;
 
     /**
      * Use this to create a BlockReg.
@@ -102,6 +109,7 @@ public class BlockReg<T extends Block> extends Reg {
     @Optional
     public BlockReg<T> defaultBlockItem(ResourceLocation modelLocation) {
         this.itemReg = ItemReg.defaultBlockItem(this, modelLocation);
+        registerItem = true;
         return this;
     }
 
@@ -112,6 +120,7 @@ public class BlockReg<T extends Block> extends Reg {
     @Optional
     public BlockReg<T> defaultBlockItem() {
         this.itemReg = ItemReg.defaultBlockItem(this);
+        registerItem = true;
         return this;
     }
 
@@ -138,6 +147,11 @@ public class BlockReg<T extends Block> extends Reg {
         return this;
     }
 
+    public BlockReg<T> withBlockRenderer(BlockRendererBuilder<T> builder) {
+        this.rendererBuilder = builder;
+        return this;
+    }
+
     /**
      * Provide a block entity for the block. If you want your block to spawn a block entity, it must be a subClass of
      * BaseEntityBlock, see {@link net.minecraft.world.level.block.BaseEntityBlock}.
@@ -151,6 +165,7 @@ public class BlockReg<T extends Block> extends Reg {
         this.blockEntityReg = new BlockEntityReg<R>(beRegistrationKey)
                 .blockEntityType(supplier)
                 .addBlock(() -> this.registryObject.get());
+        registerBe = true;
         return this;
     }
 
@@ -162,6 +177,7 @@ public class BlockReg<T extends Block> extends Reg {
     @Optional
     public BlockReg<T> withBlockEntity(BlockEntityReg<? extends BlockEntity> blockEntityReg) {
         this.blockEntityReg = blockEntityReg.addBlock(() -> this.registryObject.get());
+        registerBe = false;
         return this;
     }
 
@@ -173,7 +189,10 @@ public class BlockReg<T extends Block> extends Reg {
      */
     @Optional
     public BlockReg<T> withBlockEntityRenderer(BlockEntityReg.BlockEntityRendererBuilder builder) {
-        if (blockEntityReg == null) return this;
+        if (blockEntityReg == null) {
+            crashOnNotPresent(BlockEntityReg.class, "BlockEntityReg", "withBlockEntityRenderer");
+            return this;
+        }
         blockEntityReg.withRenderer(builder);
         return this;
     }
@@ -191,9 +210,10 @@ public class BlockReg<T extends Block> extends Reg {
      */
     @Optional
     public <F extends AbstractContainerMenu, R extends Screen, U extends Screen & MenuAccess<F>> BlockReg<T>
-    withMenu(String registrationKey, IContainerFactory<?> menu, MenuScreens.ScreenConstructor<?, ?> screen) {
+    withMenu(String registrationKey, IContainerFactory<?> menu, MenuReg.ScreenInvoker<U> screen) {
         menuReg = new MenuReg<F, R, U>(registrationKey)
-                .withMenuAndScreen((IContainerFactory<F>) menu, (MenuScreens.ScreenConstructor<F, U>) screen);
+                .withMenuAndScreen((IContainerFactory<F>) menu, screen);
+        registerMenu = true;
         return this;
     }
 
@@ -206,6 +226,7 @@ public class BlockReg<T extends Block> extends Reg {
     @Optional
     public BlockReg<T> withMenu(MenuReg<?, ?, ?> menuReg) {
         this.menuReg = menuReg;
+        registerMenu = false;
         return this;
     }
 
@@ -222,8 +243,11 @@ public class BlockReg<T extends Block> extends Reg {
      */
     @Optional
     public <F extends AbstractContainerMenu, R extends Screen, U extends Screen & MenuAccess<F>> BlockReg<T>
-    withItemMenu(String registrationKey, IContainerFactory<?> menu, MenuScreens.ScreenConstructor<?, ?> screen) {
-        if (itemReg == null) return this;
+    withItemMenu(String registrationKey, IContainerFactory<?> menu, MenuReg.ScreenInvoker<U> screen) {
+        if (itemReg == null) {
+            crashOnNotPresent(ItemReg.class, "itemReg", "withItemMenu");
+            return this;
+        }
         itemReg.withMenu(registrationKey, menu, screen);
         return this;
     }
@@ -236,7 +260,10 @@ public class BlockReg<T extends Block> extends Reg {
      */
     @Optional
     public BlockReg<T> withItemMenu(MenuReg<?, ?, ?> menuReg) {
-        if (itemReg == null) return this;
+        if (itemReg == null){
+            crashOnNotPresent(ItemReg.class, "itemReg", "withItemMenu");
+            return this;
+        }
         itemReg.withMenu(menuReg);
         return this;
     }
@@ -256,6 +283,7 @@ public class BlockReg<T extends Block> extends Reg {
     public <R extends Item> BlockReg<T> withItem(ItemReg.ItemBuilder<R> builder, ResourceLocation itemModelLocation) {
         itemReg = new ItemReg<R>(registrationKey, itemModelLocation);
         itemReg.itemType(builder);
+        registerItem = true;
         return this;
     }
 
@@ -267,6 +295,10 @@ public class BlockReg<T extends Block> extends Reg {
      */
     @Optional
     public BlockReg<T> shouldCustomRenderItem(boolean flag) {
+        if (itemReg == null) {
+            crashOnNotPresent(ItemReg.class, "itemReg", "shouldCustomRenderItem");
+            return this;
+        }
         itemReg.shouldCustomRender(flag);
         return this;
     }
@@ -278,6 +310,9 @@ public class BlockReg<T extends Block> extends Reg {
      */
     @Optional
     public BlockReg<T> itemProperty(ItemReg.PropertyIdentifier identifier) {
+        if (itemReg == null) {
+            crashOnNotPresent(ItemReg.class, "itemReg", "itemProperty");
+        }
         itemReg = itemReg.withProperty(identifier);
         return this;
     }
@@ -292,6 +327,8 @@ public class BlockReg<T extends Block> extends Reg {
     public BlockReg<T> tabTo(CreativeModeTab tab) {
         if(itemReg != null)
             itemReg.tab(tab);
+        else
+            crashOnNotPresent(ItemReg.class, "itemReg", "tabTo");
         return this;
     }
 
@@ -304,6 +341,8 @@ public class BlockReg<T extends Block> extends Reg {
     public BlockReg<T> tabTo(CreativeTabReg reg) {
         if(itemReg != null)
             itemReg.tab(reg);
+        else
+            crashOnNotPresent(ItemReg.class, "itemReg", "tabTo");
         return this;
     }
 
@@ -316,6 +355,8 @@ public class BlockReg<T extends Block> extends Reg {
     public BlockReg<T> stackSize(int size) {
         if(itemReg != null)
             itemReg.stackTo(size);
+        else
+            crashOnNotPresent(ItemReg.class, "itemReg", "stackSize");
         return this;
     }
 
@@ -339,21 +380,25 @@ public class BlockReg<T extends Block> extends Reg {
     @Override
     public BlockReg<T> submit(SimpleRegistry registry) {
         initProperties();
+        if (builder == null) {
+            crashOnNotPresent(Block.class, "blockType", "submit");
+        }
         registryObject = registry.block().register(registrationKey, () -> builder.build(properties));
-        if(itemReg != null)
+        if(itemReg != null && registerItem)
             itemReg = itemReg.submit(registry);
-        if(blockEntityReg != null) {
+        if(blockEntityReg != null && registerBe) {
             if(registry.hasBeCache(this.toString())) {
                 registry.getBeCached(this.toString()).withBlocks(() -> this.registryObject.get());
             } else {
                 registry.cacheBeIn(blockEntityReg);
             }
         }
-        if(menuReg != null) {
+        if(menuReg != null && registerMenu) {
             if(!registry.hasMenuCache(this.toString())) {
                 registry.cacheMenuIn(menuReg);
             }
         }
+        if (rendererBuilder != null) registry.cacheBlockRendererIn(this, rendererBuilder);
         return this;
     }
 
@@ -400,5 +445,10 @@ public class BlockReg<T extends Block> extends Reg {
 
     public interface BlockBuilder<T extends Block> {
         T build(BlockBehaviour.Properties properties);
+    }
+
+
+    public interface BlockRendererBuilder<T extends Block> {
+        Supplier<CustomBlockRenderer> build(Supplier<T> block);
     }
 }
