@@ -41,6 +41,10 @@ public class Saved<T extends SavedData> {
      * @param resourceKey The file name of your savedData.
      * @param data the data supplier, usually a constructor of your SavedData, we would use this to get your class instance.
      * @param loadFunction your constructor deserializer. it would deserialize nbt to your SavedData class.
+     * 使用这个来包装SavedData
+     * @param resourceKey 你的SavedData的文件名
+     * @param data 你的数据提供器，通常是SavedData的构造函数，我们会使用它来获取类实例。
+     * @param loadFunction 您的构造函数反序列化程序。它会将nbt反序列化为SavedData类。
      */
     public Saved(String resourceKey, @NotNull Supplier<T> data, @NotNull LoadFunction<T> loadFunction) {
         this.resourceKey = resourceKey;
@@ -55,6 +59,12 @@ public class Saved<T extends SavedData> {
      * {@link net.minecraftforge.event.level.LevelEvent.Save}
      * @param level The ServerLevel we would use to load our file.
      * @return the loaded SavedData.
+     * 这个方法用于从磁盘中加载数据。
+     * 如果文件不存在，将计算并返回一个空SavedData
+     * 我们通过{@link net.minecraftforge.event.level.LevelEvent.Load}，
+     * {@link net.minecraftforge.event.level.LevelEvent.Save}调用
+     * @param level 加载文件所使用的ServerLevel
+     * @return 加载的SavedData
      */
     public T loadFromDisk(ServerLevel level) {
         data = level.getDataStorage().computeIfAbsent(this::load, dataSupplier, resourceKey);
@@ -67,6 +77,11 @@ public class Saved<T extends SavedData> {
      * {@link net.minecraftforge.event.level.LevelEvent.Save} and
      * {@link net.minecraftforge.event.level.LevelEvent.Unload}
      * @param level The ServerLevel we would use to save our file.
+     * 这个方法用于从磁盘中保存数据。
+     * 如果文件已经存在，将使用新的数据覆写它
+     * 正常来讲，我们通过{@link net.minecraftforge.event.level.LevelEvent.Save}，
+     * {@link net.minecraftforge.event.level.LevelEvent.Unload}调用
+     * @param level 保存文件所使用的ServerLevel
      */
     public void saveToDisk(ServerLevel level) {
         if(data == null) return;
@@ -82,6 +97,8 @@ public class Saved<T extends SavedData> {
     /**
      * the SavedData getter
      * @return the SavedData
+     * SavedData获取器
+     * @return SavedData
      */
     public Optional<T> getData() {
         return Optional.of(data);
@@ -90,6 +107,8 @@ public class Saved<T extends SavedData> {
     /**
      * This method is used to save additional data to the SavedData.
      * @param tag Data to be saved.
+     * 这个方法是用于在存储SavedData时添加额外数据
+     * @param tag 需要存储的Data
      */
     public void save(CompoundTag tag) {
         data.save(tag);
@@ -98,6 +117,8 @@ public class Saved<T extends SavedData> {
     /**
      * save this SavedData to exact file.
      * @param file The data would be saved to this file.
+     * 保存SavedData到外部文件
+     * @param file 数据将存储到这个文件中
      */
     public void saveToFile(File file) {
         data.save(file);
@@ -106,6 +127,8 @@ public class Saved<T extends SavedData> {
     /**
      * The deserializer function interface.
      * @param <T> Your SavedData contents.
+     * 反序列化程序函数接口
+     * @param <T> 你的SavedData内容
      */
     public interface LoadFunction<T extends SavedData> {
         T load(CompoundTag tag);

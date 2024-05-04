@@ -10,6 +10,8 @@ import java.util.HashSet;
 /**
  * TextureRegistry is registry for KasugaLib style textures. We provide {@link SimpleTexture}
  * and {@link kasuga.lib.core.client.render.texture.WorldTexture} for quick Texture usage.
+ * TextuerRegistry是Kasugalib类型注册贴图使用的类。
+ * 我们提供{@link SimpleTexture}与{@link kasuga.lib.core.client.render.texture.WorldTexture}以快速使用贴图。
  */
 @Inner
 public class TextureRegistry {
@@ -40,6 +42,9 @@ public class TextureRegistry {
      * get texture from this registry.
      * @param location the location of the texture.
      * @return texture.
+     * 通过注册名获取贴图
+     * @param location 贴图的位置
+     * @return 贴图
      */
     public SimpleTexture getTexture(ResourceLocation location) {
         return PICTURES.getOrDefault(location, null);
@@ -48,6 +53,8 @@ public class TextureRegistry {
     /**
      * get all registered pics.
      * @return registered pics.
+     * 获取所有注册的图片
+     * @return 注册的图片
      */
     public HashMap<ResourceLocation, SimpleTexture> getPictures() {
         return PICTURES;
@@ -55,6 +62,7 @@ public class TextureRegistry {
 
     /**
      * this is a event fired in {@link kasuga.lib.core.events.client.TextureRegistryEvent}
+     * 这是在{@link kasuga.lib.core.events.client.TextureRegistryEvent}中被清除的事件。
      */
     @Inner
     public void onRegister() {
