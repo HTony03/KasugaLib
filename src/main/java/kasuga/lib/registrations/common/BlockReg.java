@@ -39,6 +39,13 @@ import java.util.function.Supplier;
  * about block entity registration, {@link MenuReg} for more info about menu reg, {@link ItemReg}
  * for more info about item reg. See {@link Block} about minecraft blocks.
  * @param <T> Class of your block.
+ * 方块是您游戏中的基本元素。
+ * 您可以通过这个注册方法使用物品，方块实体，方块实体渲染器或菜单简简单单的注册方块。
+ * 更多方块实体注册信息请查看{@link BlockEntityReg}
+ * 更多菜单注册信息请查看{@link MenuReg}
+ * 更多物品注册信息请查看{@link ItemReg}
+ * 更多有关方块的信息请查看{@link Block}
+ * @param <T> 你的方块类
  */
 public class BlockReg<T extends Block> extends Reg {
     private Material material = Material.AIR;
@@ -58,6 +65,8 @@ public class BlockReg<T extends Block> extends Reg {
     /**
      * Use this to create a BlockReg.
      * @param registrationKey your block registration key.
+     * 使用这个创建一个BlockReg
+     * @param registrationKey 你的方块注册名
      */
     public BlockReg(String registrationKey) {
         super(registrationKey);
@@ -364,6 +373,9 @@ public class BlockReg<T extends Block> extends Reg {
      * Apply block tags to your block.
      * @param tag block tag.
      * @return self.
+     * 为方块添加属性
+     * @param tag 方块属性
+     * @return 本身
      */
     @Optional
     public BlockReg<T> withTags(TagKey<Block> tag) {
