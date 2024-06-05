@@ -111,6 +111,8 @@ public class SimpleRegistry {
     /**
      * return the registry logger.
      * @return registry logger.
+     * 返回注册器的logger
+     * @return 注册器logger
      */
     public Logger logger() {
         return logger;
@@ -119,12 +121,16 @@ public class SimpleRegistry {
     /**
      * return the registry of SoundEvents. See {@link kasuga.lib.registrations.common.SoundReg}
      * @return Registry of SoundEvents
+     * 返回SoundEvents的注册器。请查看{@link kasuga.lib.registrations.common.SoundReg}
+     * @return SoundEvents的注册器
      */
     public DeferredRegister<SoundEvent> sound() {return SOUNDS;}
 
     /**
      * return the registry of Blocks. See {@link kasuga.lib.registrations.common.BlockReg}
      * @return Registry of Blocks
+     * 返回方块的注册器。请查看 {@link kasuga.lib.registrations.common.BlockReg}
+     * @return 方块的注册器
      */
     public DeferredRegister<Block> block() {
         return BLOCK;
@@ -133,6 +139,8 @@ public class SimpleRegistry {
     /**
      * return the registry of items. See {@link kasuga.lib.registrations.common.ItemReg}
      * @return Registry of items.
+     * 返回物品的注册器。请查看 {@link kasuga.lib.registrations.common.ItemReg}
+     * @return 物品的注册器
      */
     public DeferredRegister<Item> item() {
         return ITEMS;
@@ -141,14 +149,19 @@ public class SimpleRegistry {
     /**
      * return the registry of BlockEntities. See {@link kasuga.lib.registrations.common.BlockEntityReg}
      * @return Registry of BlockEntities.
+     * 返回方块实体的注册器。请查看 {@link kasuga.lib.registrations.common.BlockEntityReg}
+     * @return 方块实体的注册器
      */
     public DeferredRegister<BlockEntityType<?>> blockEntity() {
         return BLOCK_ENTITIES;
     }
 
+    // TODO: recheck
     /**
      * return the registry of ContainerMenus and GUI Screens. See {@link kasuga.lib.registrations.common.MenuReg}
      * @return Registry of ContainerMenus.
+     * 返回Gui与容器面板的注册器。请查看 {@link kasuga.lib.registrations.common.MenuReg}
+     * @return 容器面板的注册器
      */
     public DeferredRegister<MenuType<?>> menus() {
         return MENUS;
@@ -157,6 +170,8 @@ public class SimpleRegistry {
     /**
      * return the registry of Entities. See {@link kasuga.lib.registrations.common.EntityReg}
      * @return Registry of Entities.
+     * 返回实体的注册器。请查看 {@link kasuga.lib.registrations.common.EntityReg}
+     * @return 实体的注册器
      */
     public DeferredRegister<EntityType<?>> entity() {
         return ENTITIES;
@@ -172,6 +187,8 @@ public class SimpleRegistry {
     /**
      * return the registry of recipes. See {@link kasuga.lib.registrations.common.RecipeReg}
      * @return Registry of recipes.
+     * 返回合成表的注册器。请查看 {@link kasuga.lib.registrations.common.RecipeReg}
+     * @return 合成表的注册器
      */
     public DeferredRegister<RecipeType<?>> recipe() {
         return RECIPES;
@@ -188,30 +205,40 @@ public class SimpleRegistry {
     /**
      * return the registry of poison effects. See {@link kasuga.lib.registrations.common.EffectReg}
      * @return Registry of effects.
+     * 返回药水效果的注册器。请查看 {@link kasuga.lib.registrations.common.EffectReg}
+     * @return 药水效果的注册器
      */
     public DeferredRegister<MobEffect> mob_effect() {return EFFECT;}
 
     /**
      * return the registry of fluid types. See {@link kasuga.lib.registrations.common.FluidReg}
      * @return the registry of fluid types.
+     * 返回流体类型的注册器。请查看 {@link kasuga.lib.registrations.common.FluidReg}
+     * @return 流体类型的注册器
      */
     public DeferredRegister<FluidType> fluid_type() {return FLUID_TYPE;}
 
     /**
      * return the registry of fluid. See {@link kasuga.lib.registrations.common.FluidReg}
      * @return the registry of fluid.
+     * 返回流体的注册器。请查看 {@link kasuga.lib.registrations.common.FluidReg}
+     * @return 流体的注册器
      */
     public DeferredRegister<Fluid> fluid() {return FLUID;}
 
     /**
      * retrun the registry of kasuga lib style models. See {@link kasuga.lib.registrations.client.ModelReg}
      * @return the registry of kasuga lib style models.
+     * 返回KasugaLib类型模型的注册器。请查看 {@link kasuga.lib.registrations.client.ModelReg}
+     * @return KasugaLib类型模型的注册器
      */
     public ModelRegistry model() {return MODELS;}
 
     /**
      * return the registry of Creative Mode Tabs. See {@link kasuga.lib.registrations.common.CreativeTabReg}
-     * @return the regsitry of kasuga lib style models.
+     * @return the regsitry of Creative Mode Tab.
+     * 返回创造模式物品栏的注册器。请查看 {@link kasuga.lib.registrations.common.CreativeTabReg}
+     * @return 创造模式物品栏的注册器
      */
     public HashMap<String, SimpleCreativeTab> tab() {return TABS;}
 
@@ -227,6 +254,7 @@ public class SimpleRegistry {
 
     /**
      * You must call this after the registry has all been loaded.
+     * 你应当在所有注册加载后调用这个方法
      */
     @Mandatory
     public void submit() {
